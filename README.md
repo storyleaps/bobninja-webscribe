@@ -1,5 +1,7 @@
 # Webscribe - Chrome Extension
 
+> Part of the [BobNinja](https://bobninja.com/) project
+
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](./LICENSE)
 [![GitHub Release](https://img.shields.io/github/v/release/storyleaps/bobninja-webscribe?label=Download&color=green)](https://github.com/storyleaps/bobninja-webscribe/releases/latest)
 
