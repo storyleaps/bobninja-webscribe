@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { VERSION } from "../version";
-import { BookOpen, Globe, Mail, LifeBuoy, Shield, Github, MessageCircle } from "lucide-react";
+import { BookOpen, Globe, Bug, LifeBuoy, Shield, Github, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SupportPage } from "./SupportPage";
 import { useState } from "react";
@@ -49,8 +49,8 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
     window.open('https://bobninja.com/tools/webscribe/', '_blank');
   };
 
-  const handleContactSupportClick = () => {
-    window.open('https://bobninja.com/tools/webscribe/support/', '_blank');
+  const handleReportBugClick = () => {
+    window.open('https://github.com/storyleaps/bobninja-webscribe/issues', '_blank');
   };
 
   const handleGitHubClick = () => {
@@ -91,7 +91,7 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
           "flex flex-col h-full p-6 transition-transform duration-300 ease-in-out",
           showSupportPage ? "-translate-x-full" : "translate-x-0"
         )}>
-          <div className="flex-1 flex flex-col justify-center space-y-3">
+          <div className="flex-1 overflow-auto pr-1 space-y-3 pb-2">
             <AboutMenuItem
               icon={BookOpen}
               title="How-to Guide"
@@ -107,16 +107,16 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
             />
 
             <AboutMenuItem
-              icon={Mail}
-              title="Contact Support"
-              description="Get help or report issues"
-              onClick={handleContactSupportClick}
+              icon={Bug}
+              title="Report Bugs"
+              description="Report issues on GitHub"
+              onClick={handleReportBugClick}
             />
 
             <AboutMenuItem
               icon={Github}
               title="GitHub"
-              description="Report bugs, request features, view source"
+              description="View source code and contribute"
               onClick={handleGitHubClick}
             />
 
