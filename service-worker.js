@@ -4,7 +4,7 @@
  * VERSION: 2.13.0
  */
 
-import { startCrawl, getActiveCrawl, cancelActiveCrawl } from './lib/crawler.js';
+import { startCrawl, resumeCrawl, getActiveCrawl, cancelActiveCrawl } from './lib/crawler.js';
 import { initDB, checkAndMigrate, forceMigration, getAllJobs, getJob, deleteJob, updateJob, getPagesByJobId, searchPages, getAllErrorLogs, clearErrorLogs, getErrorLogCount, createJob, savePage } from './storage/db.js';
 import { canonicalizeUrl } from './lib/utils.js';
 import { initErrorLogger, logError, generateDiagnosticReport, generateDiagnosticReportString } from './lib/error-logger.js';
@@ -118,6 +118,10 @@ self.addEventListener('message', async (event) => {
         await handleCancelCrawl(event);
         break;
 
+      case 'RESUME_CRAWL':
+        await handleResumeCrawl(event, data);
+        break;
+
       case 'GET_JOBS':
         await handleGetJobs(event);
         break;
@@ -211,6 +215,40 @@ async function handleStartCrawl(event, data) {
   }, options);
 
   sendResponse(event, { jobId, status: 'started' });
+}
+
+/**
+ * Resume an interrupted crawl
+ */
+async function handleResumeCrawl(event, data) {
+  const { jobId, options = {} } = data;
+
+  try {
+    if (!jobId) {
+      throw new Error('Job ID is required to resume');
+    }
+
+    // Check if crawl already in progress
+    const activeCrawl = getActiveCrawl();
+    if (activeCrawl) {
+      throw new Error('A crawl is already in progress');
+    }
+
+    // Resume crawl with progress callback and options
+    await resumeCrawl(jobId, (progress) => {
+      // Broadcast progress to all connected clients
+      broadcastProgress(jobId, progress);
+    }, options);
+
+    sendResponse(event, { jobId, status: 'resumed' });
+  } catch (error) {
+    console.error('[ServiceWorker] Failed to resume crawl:', error);
+    logError('service-worker', error, {
+      action: 'handleResumeCrawl',
+      jobId
+    });
+    throw error; // Re-throw to be caught by outer handler
+  }
 }
 
 /**

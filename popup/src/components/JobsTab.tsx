@@ -142,8 +142,8 @@ export function JobsTab() {
         return;
       }
 
-      // Start the crawl with the same base URL
-      await crawlerAPI.startCrawl(job.baseUrl);
+      // Resume the existing job (continues from where it left off)
+      await crawlerAPI.resumeCrawl(job.id);
 
       toast({
         variant: "success",
@@ -159,7 +159,7 @@ export function JobsTab() {
       toast({
         variant: "destructive",
         title: "Failed to resume",
-        description: err instanceof Error ? err.message : "Failed to start the capture"
+        description: err instanceof Error ? err.message : "Failed to resume the capture"
       });
     }
   };

@@ -5,6 +5,7 @@
 
 type MessageType =
   | 'START_CRAWL'
+  | 'RESUME_CRAWL'
   | 'CANCEL_CRAWL'
   | 'GET_JOBS'
   | 'GET_JOB'
@@ -92,6 +93,14 @@ export const crawlerAPI = {
    */
   async startCrawl(baseUrl: string | string[], options?: any) {
     return sendMessage('START_CRAWL', { baseUrl, options });
+  },
+
+  /**
+   * Resume an interrupted crawl
+   * Continues an existing job instead of creating a new one
+   */
+  async resumeCrawl(jobId: string, options?: any) {
+    return sendMessage('RESUME_CRAWL', { jobId, options });
   },
 
   /**
