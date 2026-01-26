@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Webscribe by BobNinja",
   "short_name": "Webscribe",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Save web pages as clean markdown or text. Perfect for offline reading, AI assistants, and documentation research.",
   "icons": {
     "16": "icons/icon16.png",
