@@ -15,9 +15,11 @@ This document explains how to create releases for the Documentation Crawler Chro
     - [1. Review the Commits](#1-review-the-commits)
     - [2. Verify the Version File](#2-verify-the-version-file)
     - [3. Update the Changelog](#3-update-the-changelog)
-    - [4. Push to Remote](#4-push-to-remote)
-    - [5. Build the Extension](#5-build-the-extension)
-    - [6. (Optional) Create GitHub Release](#6-optional-create-github-release)
+    - [4. Build the Extension](#4-build-the-extension)
+    - [5. Package the Extension](#5-package-the-extension)
+    - [6. Commit the Changelog](#6-commit-the-changelog)
+    - [7. Push to Remote](#7-push-to-remote)
+    - [8. (Optional) Create GitHub Release](#8-optional-create-github-release)
   - [Files Updated During Release](#files-updated-during-release)
   - [Using the Version in Popup UI](#using-the-version-in-popup-ui)
 
@@ -34,15 +36,31 @@ node rls.js <version>
 # 2. Update changelog (Claude Code slash command)
 /changelog
 
-# 3. Commit changelog
+# 3. Build the popup
+cd popup && npm run build && cd ..
+
+# 4. Package for Chrome Web Store
+node pkg.js
+
+# 5. Commit changelog
 git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+
+# 6. Push to remote
+git push && git push --tags
+
+# 7. (Optional) Push to GitHub Releases
+node push-release.js "Release notes here"
 ```
 
 Example:
 ```bash
 node rls.js 2.2.0
-# Then run /changelog in Claude Code
+/changelog
+cd popup && npm run build && cd ..
+node pkg.js
 git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+git push && git push --tags
+node push-release.js "Add new feature X"
 ```
 
 ## What the Script Does
@@ -115,9 +133,11 @@ The script will output next steps:
   1. Review commits: git log -2 --oneline
   2. Verify version file: cat popup/src/version.ts
   3. Update changelog: /changelog (Claude Code slash command)
-  4. Commit changelog: git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
-  5. Push to remote: git push && git push --tags
-  6. Build the extension: cd popup && npm run build
+  4. Build the extension: cd popup && npm run build
+  5. Package extension: node pkg.js
+  6. Commit changelog: git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+  7. Push to remote: git push && git push --tags
+  8. (Optional) GitHub Release: node push-release.js "Release notes"
 ```
 
 ### 1. Review the Commits
@@ -147,10 +167,6 @@ Use the Claude Code `/changelog` slash command to automatically generate a chang
 ```bash
 # In Claude Code, run:
 /changelog
-
-# This analyzes the conversation and creates a changelog entry
-# Then stage and commit the updated CHANGELOG.md:
-git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
 ```
 
 The `/changelog` command:
@@ -159,7 +175,31 @@ The `/changelog` command:
 - Adds a new entry to `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com) format
 - Categorizes changes under Added, Changed, Fixed, Removed, etc.
 
-### 4. Push to Remote
+### 4. Build the Extension
+
+```bash
+cd popup && npm run build && cd ..
+```
+
+This builds the React popup UI with the new version information.
+
+### 5. Package the Extension
+
+```bash
+node pkg.js
+```
+
+This creates `out/webscribe-extension.zip` for Chrome Web Store upload.
+
+### 6. Commit the Changelog
+
+```bash
+git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+```
+
+This commits the changelog changes generated in step 3.
+
+### 7. Push to Remote
 
 ```bash
 git push && git push --tags
@@ -167,26 +207,17 @@ git push && git push --tags
 
 This pushes all commits (version bump, version file, and changelog) and the version tag to the remote repository.
 
-### 5. Build the Extension
+**Important:** This step must be completed before creating a GitHub Release (step 8), because the release is associated with the git tag. If the tag doesn't exist on the remote, the release creation will fail.
 
-```bash
-cd popup
-npm run build
-```
-
-This builds the React popup UI with the new version information.
-
-### 6. (Optional) Create GitHub Release
+### 8. (Optional) Create GitHub Release
 
 To store the build artifact on GitHub Releases for version history and easy rollback:
 
 ```bash
-# Package the extension first
-node pkg.js
-
-# Push to GitHub Releases
 node push-release.js "Release notes or changelog here"
 ```
+
+**Note:** This command requires the version tag to exist on the remote repository. Always run `git push --tags` (step 7) before this step, otherwise the release will fail with a "tag not found" error.
 
 This creates a GitHub Release with the ZIP artifact attached, making it easy to:
 - Download and deploy any previous version

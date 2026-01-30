@@ -24,11 +24,13 @@ Use the Developer Dashboard to check published or pending approval extensions.
   - [Prerequisites](#prerequisites)
   - [Deployment Workflow](#deployment-workflow)
     - [Step 1: Bump Version](#step-1-bump-version)
-    - [Step 1b: Update Changelog](#step-1b-update-changelog)
-    - [Step 2: Build the Popup](#step-2-build-the-popup)
-    - [Step 3: Create ZIP Package](#step-3-create-zip-package)
-    - [Step 4: (Optional) Push to GitHub Releases](#step-4-optional-push-to-github-releases)
-    - [Step 5: Upload to Chrome Web Store](#step-5-upload-to-chrome-web-store)
+    - [Step 2: Update Changelog](#step-2-update-changelog)
+    - [Step 3: Build the Popup](#step-3-build-the-popup)
+    - [Step 4: Create ZIP Package](#step-4-create-zip-package)
+    - [Step 5: Commit Changelog](#step-5-commit-changelog)
+    - [Step 6: Push to Remote](#step-6-push-to-remote)
+    - [Step 7: (Optional) Push to GitHub Releases](#step-7-optional-push-to-github-releases)
+    - [Step 8: Upload to Chrome Web Store](#step-8-upload-to-chrome-web-store)
   - [Store Assets](#store-assets)
     - [Screenshots](#screenshots)
     - [Promotional Tiles](#promotional-tiles)
@@ -89,31 +91,26 @@ To check the current version:
 node v.js
 ```
 
-### Step 1b: Update Changelog
+### Step 2: Update Changelog
 
 After bumping the version, update the changelog using the Claude Code slash command:
 
 ```bash
 # In Claude Code, run:
 /changelog
-
-# Then stage and commit the changelog:
-git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
 ```
 
 This automatically generates a changelog entry based on the conversation context and recent changes.
 
-### Step 2: Build the Popup
+### Step 3: Build the Popup
 
 Build the popup UI before packaging:
 
 ```bash
-cd popup
-npm run build
-cd ..
+cd popup && npm run build && cd ..
 ```
 
-### Step 3: Create ZIP Package
+### Step 4: Create ZIP Package
 
 Create the ZIP file for Chrome Web Store upload:
 
@@ -131,7 +128,25 @@ This creates `out/webscribe-extension.zip` containing only the necessary files:
 
 The `out/` folder is gitignored.
 
-### Step 4: (Optional) Push to GitHub Releases
+### Step 5: Commit Changelog
+
+Commit the changelog changes generated in Step 2:
+
+```bash
+git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+```
+
+### Step 6: Push to Remote
+
+Push all commits and tags to the remote repository:
+
+```bash
+git push && git push --tags
+```
+
+**Important:** This step must be completed before creating a GitHub Release (Step 7), because the release is associated with the git tag. If the tag doesn't exist on the remote, the release creation will fail.
+
+### Step 7: (Optional) Push to GitHub Releases
 
 Store the build artifact on GitHub for version history:
 
@@ -139,13 +154,15 @@ Store the build artifact on GitHub for version history:
 node push-release.js "Release notes or changelog here"
 ```
 
+**Note:** This command requires the version tag to exist on the remote repository. Always run `git push --tags` (Step 6) before this step, otherwise the release will fail with a "tag not found" error.
+
 This step is optional but recommended. It allows you to:
 - Download and redeploy any previous version without rebuilding
 - Track deployment history
 - Roll back quickly in case of issues
 - Audit exactly what was submitted to Chrome Web Store
 
-### Step 5: Upload to Chrome Web Store
+### Step 8: Upload to Chrome Web Store
 
 1. Go to [Chrome Developer Dashboard](https://chrome.google.com/webstore/devconsole)
 2. Click **"New Item"** or select your existing extension
