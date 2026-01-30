@@ -88,7 +88,7 @@ export function AboutDialog({ open, onOpenChange }: AboutDialogProps) {
 
         {/* Main content */}
         <div className={cn(
-          "flex flex-col h-full p-6 transition-transform duration-300 ease-in-out",
+          "flex flex-col h-full px-6 pb-6 pt-10 transition-transform duration-300 ease-in-out",
           showSupportPage ? "-translate-x-full" : "translate-x-0"
         )}>
           <div className="flex-1 overflow-auto pr-1 space-y-3 pb-2">

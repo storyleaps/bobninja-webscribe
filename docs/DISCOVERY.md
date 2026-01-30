@@ -16,6 +16,8 @@
     - [Benefits Over Regex](#benefits-over-regex)
   - [Sitemap Discovery](#sitemap-discovery)
     - [Sitemap Detection](#sitemap-detection)
+    - [Sitemap Index Support](#sitemap-index-support)
+    - [Timeout Configuration](#timeout-configuration)
     - [Sitemap Fetching](#sitemap-fetching)
     - [Error Handling](#error-handling)
     - [Base Path Filtering](#base-path-filtering)
@@ -74,7 +76,8 @@ The discovery module handles URL discovery through two complementary strategies:
 **File**: `lib/discovery.js`
 
 **Key Responsibilities**:
-- Fetch and parse sitemap.xml
+- Fetch and parse sitemap.xml (including sitemap index files)
+- Recursively parse nested sitemaps with timeout protection
 - Extract links from HTML using regex
 - Canonicalize and normalize URLs
 - Filter URLs to base path(s) - supports multiple base URLs
@@ -310,21 +313,93 @@ const sitemapUrl = `${domain}/sitemap.xml`;
 - Input: `https://docs.stripe.com/api/charges`
 - Sitemap URL: `https://docs.stripe.com/sitemap.xml`
 
-### Sitemap Fetching
+### Sitemap Index Support
+
+Many CMS platforms (WordPress, Yoast SEO, etc.) use **sitemap index files** that reference multiple child sitemaps:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://example.com/post-sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://example.com/page-sitemap.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://example.com/category-sitemap.xml</loc>
+  </sitemap>
+</sitemapindex>
+```
+
+**Detection**:
+```javascript
+function isSitemapIndex(xmlText) {
+  return /<sitemapindex/i.test(xmlText) || /<sitemap>/i.test(xmlText);
+}
+```
+
+**Recursive Parsing**:
+- If a sitemap index is detected, extract nested sitemap URLs
+- Fetch each nested sitemap with timeout protection
+- Recursively parse up to `MAX_SITEMAP_DEPTH` levels (default: 2)
+- Combine all page URLs from nested sitemaps
+- Filter out `.xml` URLs from final results (safety net)
+
+**Example Flow**:
+```
+sitemap.xml (index)
+├── Fetch post-sitemap.xml → 50 page URLs
+├── Fetch page-sitemap.xml → 10 page URLs
+├── Fetch category-sitemap.xml → 20 page URLs
+└── Total: 80 page URLs discovered
+```
+
+### Timeout Configuration
+
+Sitemap discovery uses configurable timeouts to prevent crawl delays:
 
 ```javascript
-const response = await fetch(sitemapUrl, {
-  headers: {
-    'Accept': 'application/xml, text/xml, */*'
+const SITEMAP_FETCH_TIMEOUT = 10000;      // 10s per root sitemap
+const NESTED_SITEMAP_TIMEOUT = 5000;      // 5s per nested sitemap
+const TOTAL_DISCOVERY_TIMEOUT = 30000;    // 30s max for entire discovery
+const MAX_SITEMAP_DEPTH = 2;              // Maximum nesting depth
+```
+
+**Timeout Behavior**:
+- Each sitemap fetch has its own timeout (10s root, 5s nested)
+- Total discovery phase capped at 30 seconds
+- If a sitemap times out, it's skipped and others continue
+- If total timeout reached, returns URLs discovered so far
+
+**Why Timeouts?**:
+- Sitemaps are an optimization, not critical path
+- Slow/broken sitemaps shouldn't block the crawl
+- Continuous link discovery will find pages anyway
+- Fast sites benefit from sitemap discovery
+- Slow sites gracefully fall back to link extraction
+
+### Sitemap Fetching
+
+Uses `AbortController` for timeout protection:
+
+```javascript
+async function fetchWithTimeout(url, timeout) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/xml, text/xml, */*'
+      }
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
   }
-});
-
-if (!response.ok) {
-  console.log('Sitemap not found:', response.status);
-  return null;
 }
-
-const xmlText = await response.text();
 ```
 
 **Headers**:
@@ -332,30 +407,41 @@ const xmlText = await response.text();
 - Helps servers return proper content
 
 **Response handling**:
-- 200: Parse XML
-- 404: No sitemap (return null)
-- Other errors: Log and return null
+- 200: Parse XML (check for sitemap index)
+- 404: No sitemap (return empty array)
+- Timeout: Log warning, return empty array
+- Other errors: Log and return empty array
 
 ### Error Handling
 
-Graceful fallback on errors:
+Graceful fallback on errors with per-sitemap isolation:
 
 ```javascript
 try {
-  // Fetch and parse sitemap
+  const nestedUrls = await fetchAndParseSitemap(nestedUrl, depth + 1, startTime);
+  allUrls.push(...nestedUrls);
 } catch (error) {
-  console.error('Error fetching sitemap:', error);
-  return null;
+  // Log and continue - don't let one failed sitemap stop the others
+  console.warn(`[Discovery] Failed to fetch nested sitemap ${nestedUrl}:`, error.message);
 }
 ```
 
 **Errors handled**:
-- Network errors
-- Timeout errors
-- Invalid XML
-- Parsing errors
+- Network errors (continue with other sitemaps)
+- Timeout errors (`AbortError` - logged as timeout)
+- Invalid XML (return empty array)
+- Parsing errors (return empty array)
 
-**Fallback**: Return `null`, crawler uses base URL only
+**Timeout-specific handling**:
+```javascript
+if (error.name === 'AbortError') {
+  console.warn(`[Discovery] Sitemap fetch timeout (${timeout}ms): ${sitemapUrl}`);
+} else {
+  console.warn(`[Discovery] Error fetching sitemap:`, error.message);
+}
+```
+
+**Fallback**: Return whatever URLs were discovered, crawler continues with base URL
 
 ### Base Path Filtering
 
@@ -384,10 +470,11 @@ const filteredUrls = urls
 
 ### Regex-Based Parsing
 
-No DOMParser in service workers, use regex instead:
+No DOMParser in service workers, use regex instead. Two separate functions handle different sitemap types:
 
+**Extract Page URLs** (from regular sitemaps):
 ```javascript
-function parseSitemap(xmlText) {
+function extractPageUrls(xmlText) {
   const urls = [];
   const locRegex = /<loc>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/loc>/gi;
   let match;
@@ -395,13 +482,36 @@ function parseSitemap(xmlText) {
   while ((match = locRegex.exec(xmlText)) !== null) {
     const url = match[1].trim();
     if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-      urls.push(url);
+      // Skip URLs that look like sitemaps (end with .xml)
+      if (!url.toLowerCase().endsWith('.xml')) {
+        urls.push(url);
+      }
     }
   }
-
   return urls;
 }
 ```
+
+**Extract Nested Sitemap URLs** (from sitemap indexes):
+```javascript
+function extractNestedSitemapUrls(xmlText) {
+  const sitemapUrls = [];
+  const sitemapRegex = /<sitemap[^>]*>[\s\S]*?<loc>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/loc>[\s\S]*?<\/sitemap>/gi;
+  let match;
+
+  while ((match = sitemapRegex.exec(xmlText)) !== null) {
+    const url = match[1].trim();
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+      sitemapUrls.push(url);
+    }
+  }
+  return sitemapUrls;
+}
+```
+
+**Key Difference**:
+- `extractPageUrls`: Extracts all `<loc>` tags, filters out `.xml` URLs
+- `extractNestedSitemapUrls`: Extracts only `<loc>` tags within `<sitemap>` elements
 
 ### Pattern Matching
 
