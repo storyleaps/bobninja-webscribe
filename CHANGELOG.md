@@ -5,6 +5,32 @@ All notable changes to the Webscribe extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.2] - 2025-01-30
+
+### Fixed
+- **Sitemap index parsing** - Crawl jobs no longer get stuck when websites use sitemap index files (WordPress/Yoast SEO style)
+  - Root sitemap.xml files that reference nested sitemaps (e.g., `post-sitemap.xml`, `page-sitemap.xml`) are now recursively parsed
+  - Actual page URLs extracted from nested sitemaps instead of treating `.xml` files as crawlable pages
+  - Previously, workers would attempt to render sitemap XML files as pages, causing hangs
+
+### Added
+- **Sitemap discovery timeouts** - Robust timeout protection prevents sitemap issues from blocking crawls
+  - 10 second timeout per root sitemap fetch
+  - 5 second timeout per nested sitemap fetch
+  - 30 second maximum for entire sitemap discovery phase
+  - Maximum nesting depth of 2 levels
+- **Graceful sitemap fallback** - If any sitemap times out or fails, discovery continues with remaining sitemaps
+  - Individual sitemap failures don't stop other sitemaps from being parsed
+  - Crawl proceeds with whatever URLs were discovered plus continuous link extraction
+
+### Changed
+- **Settings page padding** - Added more top padding to the About/Settings dialog for better visual spacing
+
+### Documentation
+- Updated DISCOVERY.md with Sitemap Index Support and Timeout Configuration sections
+- Added code examples for sitemap index detection and recursive parsing
+- Documented timeout constants and graceful fallback behavior
+
 ## [3.1.0] - 2025-12-26
 
 ### Added

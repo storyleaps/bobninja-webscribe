@@ -24,6 +24,7 @@ Use the Developer Dashboard to check published or pending approval extensions.
   - [Prerequisites](#prerequisites)
   - [Deployment Workflow](#deployment-workflow)
     - [Step 1: Bump Version](#step-1-bump-version)
+    - [Step 1b: Update Changelog](#step-1b-update-changelog)
     - [Step 2: Build the Popup](#step-2-build-the-popup)
     - [Step 3: Create ZIP Package](#step-3-create-zip-package)
     - [Step 4: (Optional) Push to GitHub Releases](#step-4-optional-push-to-github-releases)
@@ -87,6 +88,20 @@ To check the current version:
 ```bash
 node v.js
 ```
+
+### Step 1b: Update Changelog
+
+After bumping the version, update the changelog using the Claude Code slash command:
+
+```bash
+# In Claude Code, run:
+/changelog
+
+# Then stage and commit the changelog:
+git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+```
+
+This automatically generates a changelog entry based on the conversation context and recent changes.
 
 ### Step 2: Build the Popup
 

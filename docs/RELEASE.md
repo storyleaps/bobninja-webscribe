@@ -14,10 +14,11 @@ This document explains how to create releases for the Documentation Crawler Chro
   - [After Running the Script](#after-running-the-script)
     - [1. Review the Commits](#1-review-the-commits)
     - [2. Verify the Version File](#2-verify-the-version-file)
-    - [3. Push to Remote](#3-push-to-remote)
-    - [4. Build the Extension](#4-build-the-extension)
-    - [5. (Optional) Create GitHub Release](#5-optional-create-github-release)
-  - [Files Updated by the Script](#files-updated-by-the-script)
+    - [3. Update the Changelog](#3-update-the-changelog)
+    - [4. Push to Remote](#4-push-to-remote)
+    - [5. Build the Extension](#5-build-the-extension)
+    - [6. (Optional) Create GitHub Release](#6-optional-create-github-release)
+  - [Files Updated During Release](#files-updated-during-release)
   - [Using the Version in Popup UI](#using-the-version-in-popup-ui)
 
 ---
@@ -27,12 +28,21 @@ This document explains how to create releases for the Documentation Crawler Chro
 To create a new release:
 
 ```bash
+# 1. Bump version
 node rls.js <version>
+
+# 2. Update changelog (Claude Code slash command)
+/changelog
+
+# 3. Commit changelog
+git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
 ```
 
 Example:
 ```bash
 node rls.js 2.2.0
+# Then run /changelog in Claude Code
+git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
 ```
 
 ## What the Script Does
@@ -104,8 +114,10 @@ The script will output next steps:
 📌 Next steps:
   1. Review commits: git log -2 --oneline
   2. Verify version file: cat popup/src/version.ts
-  3. Push to remote: git push && git push --tags
-  4. Build the extension: cd popup && npm run build
+  3. Update changelog: /changelog (Claude Code slash command)
+  4. Commit changelog: git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+  5. Push to remote: git push && git push --tags
+  6. Build the extension: cd popup && npm run build
 ```
 
 ### 1. Review the Commits
@@ -128,15 +140,34 @@ Check that:
 - The `VERSION` contains the correct format (e.g., `2.2.0.251121.a1b2c3d`)
 - The `GIT_SHA` matches the hash of the version bump commit (the first of the two commits)
 
-### 3. Push to Remote
+### 3. Update the Changelog
+
+Use the Claude Code `/changelog` slash command to automatically generate a changelog entry:
+
+```bash
+# In Claude Code, run:
+/changelog
+
+# This analyzes the conversation and creates a changelog entry
+# Then stage and commit the updated CHANGELOG.md:
+git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+```
+
+The `/changelog` command:
+- Reads the current version from `manifest.json`
+- Analyzes recent changes from the conversation context
+- Adds a new entry to `CHANGELOG.md` following [Keep a Changelog](https://keepachangelog.com) format
+- Categorizes changes under Added, Changed, Fixed, Removed, etc.
+
+### 4. Push to Remote
 
 ```bash
 git push && git push --tags
 ```
 
-This pushes both commits and the version tag to the remote repository.
+This pushes all commits (version bump, version file, and changelog) and the version tag to the remote repository.
 
-### 4. Build the Extension
+### 5. Build the Extension
 
 ```bash
 cd popup
@@ -145,7 +176,7 @@ npm run build
 
 This builds the React popup UI with the new version information.
 
-### 5. (Optional) Create GitHub Release
+### 6. (Optional) Create GitHub Release
 
 To store the build artifact on GitHub Releases for version history and easy rollback:
 
@@ -163,11 +194,12 @@ This creates a GitHub Release with the ZIP artifact attached, making it easy to:
 - Roll back without rebuilding from source
 - Audit what was submitted to Chrome Web Store
 
-## Files Updated by the Script
+## Files Updated During Release
 
-- `manifest.json` - Chrome extension version (committed in first commit)
-- `popup/package.json` - Popup app version (committed in first commit)
-- `popup/src/version.ts` - Generated version metadata (committed in second commit)
+- `manifest.json` - Chrome extension version (committed by `rls.js` in first commit)
+- `popup/package.json` - Popup app version (committed by `rls.js` in first commit)
+- `popup/src/version.ts` - Generated version metadata (committed by `rls.js` in second commit)
+- `CHANGELOG.md` - Release notes (updated via `/changelog` command, committed manually)
 
 ## Using the Version in Popup UI
 
