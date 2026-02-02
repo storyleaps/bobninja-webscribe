@@ -22,7 +22,8 @@ Use the Developer Dashboard to check published or pending approval extensions.
   - [Table of Contents](#table-of-contents)
   - [Overview](#overview)
   - [Prerequisites](#prerequisites)
-  - [Deployment Workflow](#deployment-workflow)
+  - [Automated Deployment (Recommended)](#automated-deployment-recommended)
+  - [Manual Deployment Workflow](#manual-deployment-workflow)
     - [Step 1: Bump Version](#step-1-bump-version)
     - [Step 2: Update Changelog](#step-2-update-changelog)
     - [Step 3: Build the Popup](#step-3-build-the-popup)
@@ -66,7 +67,38 @@ Before deploying, ensure you have:
 
 ---
 
-## Deployment Workflow
+## Automated Deployment (Recommended)
+
+The easiest way to prepare a release is using the `/release` Claude Code command:
+
+```bash
+/release
+```
+
+**What it does:**
+1. Analyzes your conversation to detect the change type (major/minor/patch)
+2. Asks for confirmation with the proposed version
+3. Executes all release steps automatically:
+   - Bumps version
+   - Updates changelog
+   - Builds and packages the extension
+   - Commits, pushes, and creates GitHub release
+
+**Usage options:**
+```bash
+/release              # Auto-detect version type
+/release patch        # Force a patch release
+/release minor        # Force a minor release
+/release 4.2.0        # Use a specific version
+```
+
+After `/release` completes, proceed to [Step 8: Upload to Chrome Web Store](#step-8-upload-to-chrome-web-store) to upload the packaged extension.
+
+---
+
+## Manual Deployment Workflow
+
+If you prefer to run each step manually, follow the steps below.
 
 ### Step 1: Bump Version
 
@@ -133,7 +165,7 @@ The `out/` folder is gitignored.
 Commit the changelog changes generated in Step 2:
 
 ```bash
-git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+git add --all && git commit -m "docs: update CHANGELOG.md"
 ```
 
 ### Step 6: Push to Remote
@@ -141,7 +173,7 @@ git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
 Push all commits and tags to the remote repository:
 
 ```bash
-git push && git push --tags
+git push origin master --follow-tags
 ```
 
 **Important:** This step must be completed before creating a GitHub Release (Step 7), because the release is associated with the git tag. If the tag doesn't exist on the remote, the release creation will fail.

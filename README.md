@@ -453,7 +453,8 @@ extension/
 
 **Creating releases**:
 - Read [RELEASE.md](./docs/RELEASE.md) - Release management and versioning
-- Use `node rls.js <version>` to create releases
+- Use `/release` (Claude Code command) for automated releases (recommended)
+- Use `node rls.js <version>` for manual version bumping
 - Use `node v.js` to check the current version
 
 ### Specialized Documentation
@@ -725,7 +726,8 @@ extension/
 #### [RELEASE.md](./docs/RELEASE.md)
 
 **What it covers**:
-- Creating new releases with automated version management
+- Automated release workflow with `/release` command
+- Manual release process for step-by-step control
 - Version numbering with semantic versioning (x.x.x)
 - Custom version format with timestamp and git commit hash
 - Two-commit strategy to solve the commit hash chicken-and-egg problem
@@ -740,10 +742,12 @@ extension/
 - Debugging version-related issues
 - Contributing and need to release changes
 
-**Length**: ~130 lines, ~8 minutes
+**Length**: ~180 lines, ~10 minutes
 
 **Key commands**:
-- `node rls.js <version>` - Create a new release
+- `/release` - Automated release (Claude Code command, recommended)
+- `/release patch|minor|major` - Force specific version type
+- `node rls.js <version>` - Manual version bump
 - `node v.js` - Check current version
 - `node pkg.js` - Package extension as ZIP
 - `node push-release.js [notes]` - Push to GitHub Releases
@@ -811,7 +815,17 @@ The following documents are for contributors and community members:
 
 ## Packaging for Chrome Web Store
 
-Before uploading to the Chrome Web Store, create a ZIP package:
+**Recommended:** Use the `/release` Claude Code command for automated releases:
+
+```bash
+/release              # Auto-detect version type
+/release patch        # Force patch release
+/release minor        # Force minor release
+```
+
+This handles version bumping, changelog, build, packaging, and GitHub release automatically.
+
+**Manual process:** If you prefer step-by-step control:
 
 ```bash
 # 1. Bump version (if releasing a new version)

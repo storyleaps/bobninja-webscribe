@@ -6,7 +6,8 @@ This document explains how to create releases for the Documentation Crawler Chro
 
 - [Release Management](#release-management)
   - [Table of Contents](#table-of-contents)
-  - [Quick Start](#quick-start)
+  - [Automated Release (Recommended)](#automated-release-recommended)
+  - [Manual Release](#manual-release)
   - [What the Script Does](#what-the-script-does)
   - [Custom Version Format](#custom-version-format)
   - [The Commit Hash Challenge](#the-commit-hash-challenge)
@@ -25,7 +26,47 @@ This document explains how to create releases for the Documentation Crawler Chro
 
 ---
 
-## Quick Start
+## Automated Release (Recommended)
+
+The easiest way to create a release is using the `/release` Claude Code command. It automates the entire workflow:
+
+```bash
+/release
+```
+
+**What it does:**
+1. Analyzes your conversation to detect the change type (major/minor/patch)
+2. Asks for confirmation with the proposed version
+3. Executes all release steps automatically:
+   - Bumps version (`node rls.js`)
+   - Updates changelog (`/changelog`)
+   - Builds the popup
+   - Packages the extension
+   - Commits, pushes, and creates GitHub release
+
+**Usage options:**
+```bash
+/release              # Auto-detect version type from conversation
+/release patch        # Force a patch release
+/release minor        # Force a minor release
+/release major        # Force a major release
+/release 4.2.0        # Use a specific version number
+```
+
+**Version type detection:**
+- `major` - Breaking changes, incompatible API changes
+- `minor` - New features, backwards-compatible additions
+- `patch` - Bug fixes, documentation updates, refactoring
+
+After the release completes, manually upload to Chrome Web Store at https://chrome.google.com/webstore/devconsole
+
+---
+
+## Manual Release
+
+If you prefer to run each step manually, follow the process below.
+
+### Quick Start
 
 To create a new release:
 
@@ -43,10 +84,10 @@ cd popup && npm run build && cd ..
 node pkg.js
 
 # 5. Commit changelog
-git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+git add --all && git commit -m "docs: update CHANGELOG.md"
 
 # 6. Push to remote
-git push && git push --tags
+git push origin master --follow-tags
 
 # 7. (Optional) Push to GitHub Releases
 node push-release.js "Release notes here"
@@ -58,8 +99,8 @@ node rls.js 2.2.0
 /changelog
 cd popup && npm run build && cd ..
 node pkg.js
-git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
-git push && git push --tags
+git add --all && git commit -m "docs: update CHANGELOG.md"
+git push origin master --follow-tags
 node push-release.js "Add new feature X"
 ```
 
@@ -135,8 +176,8 @@ The script will output next steps:
   3. Update changelog: /changelog (Claude Code slash command)
   4. Build the extension: cd popup && npm run build
   5. Package extension: node pkg.js
-  6. Commit changelog: git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
-  7. Push to remote: git push && git push --tags
+  6. Commit changelog: git add --all && git commit -m "docs: update CHANGELOG.md"
+  7. Push to remote: git push origin master --follow-tags
   8. (Optional) GitHub Release: node push-release.js "Release notes"
 ```
 
@@ -194,7 +235,7 @@ This creates `out/webscribe-extension.zip` for Chrome Web Store upload.
 ### 6. Commit the Changelog
 
 ```bash
-git add CHANGELOG.md && git commit -m "docs: update CHANGELOG.md"
+git add --all && git commit -m "docs: update CHANGELOG.md"
 ```
 
 This commits the changelog changes generated in step 3.
@@ -202,10 +243,10 @@ This commits the changelog changes generated in step 3.
 ### 7. Push to Remote
 
 ```bash
-git push && git push --tags
+git push origin master --follow-tags
 ```
 
-This pushes all commits (version bump, version file, and changelog) and the version tag to the remote repository.
+This pushes all commits (version bump, version file, and changelog) and the version tag to the remote repository in a single command.
 
 **Important:** This step must be completed before creating a GitHub Release (step 8), because the release is associated with the git tag. If the tag doesn't exist on the remote, the release creation will fail.
 
