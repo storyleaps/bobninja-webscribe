@@ -5,6 +5,17 @@ All notable changes to the Webscribe extension will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.3] - 2026-02-02
+
+### Fixed
+- **Infinite loop on duplicate content** - URLs with duplicate content are now correctly marked as completed, preventing them from being re-added to the queue indefinitely
+  - Duplicate detection updates alternate URLs but was not marking the URL as processed
+  - Page limit checks now also mark URLs as completed when skipping saves
+- **Tab timeout on slow-loading pages** - Pages that never reach 'complete' status (due to websockets, analytics scripts, or streaming responses) no longer cause timeouts
+  - Tab loading now waits maximum 10 seconds for 'complete' status
+  - Gracefully proceeds to content detection instead of timing out
+  - Content detection (DOM stability, network idle, content plateau) correctly identifies when content is ready
+
 ## [4.1.2] - 2025-01-30
 
 ### Fixed
