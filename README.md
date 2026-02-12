@@ -91,7 +91,9 @@ Updates are not automatic with Developer Mode. To update:
     - [For First-Time Users](#for-first-time-users)
     - [For Developers](#for-developers)
     - [For Contributors](#for-contributors)
+    - [For AI Agents](#for-ai-agents)
     - [Specialized Documentation](#specialized-documentation)
+      - [ABP.md](#abpmd)
       - [ARCHITECTURE.md](#architecturemd)
       - [STORAGE.md](#storagemd)
       - [CAPTURER.md](#crawlermd)
@@ -162,6 +164,7 @@ Webscribe is a powerful browser extension that:
 
 ### Key Features
 
+✅ **ABP Support for AI Agents** - Programmatic API exposing 17 capabilities for AI agent integration (v4.2+)
 ✅ **Content Picker Mode** - Interactively select and extract content from any web page element (v2.24+)
 ✅ **Multiple URL Support** - Capture multiple base paths in a single job, paste multiple URLs at once (v2.10+)
 ✅ **Strict Path Matching** - Prevent false matches like `/api` matching `/api-docs` (v2.10+)
@@ -457,7 +460,54 @@ extension/
 - Use `node rls.js <version>` for manual version bumping
 - Use `node v.js` to check the current version
 
+### For AI Agents
+
+**Programmatic access to Webscribe via ABP**:
+
+Read [ABP.md](./docs/ABP.md) to learn how AI agents can programmatically interact with Webscribe using the Agentic Browser Protocol. ABP exposes 17 capabilities for crawling, content extraction, storage, and export — no UI automation required.
+
+**Quick start for agents**:
+```javascript
+// Initialize session
+await window.abp.initialize({ agent: { name: 'claude' }, protocolVersion: '0.1', features: {} });
+
+// Start a crawl
+const crawl = await window.abp.call('crawl.start', { urls: 'https://docs.example.com' });
+
+// Poll status
+const status = await window.abp.call('crawl.status', { jobId: crawl.data.jobId });
+
+// Export as ZIP
+const archive = await window.abp.call('export.asArchive', { jobIds: [jobId], format: 'markdown' });
+```
+
+See [ABP.md](./docs/ABP.md) for complete API reference, all 17 capabilities, and MCP Bridge integration.
+
 ### Specialized Documentation
+
+#### [ABP.md](./docs/ABP.md)
+
+**What it covers**:
+- Agentic Browser Protocol (ABP) implementation for AI agent access
+- All 17 programmatic capabilities (crawl, storage, export, scraping, diagnostics)
+- Fire-and-poll pattern for long-running crawls
+- Response formats and error handling
+- MCP Bridge integration for AI agents
+- Testing via DevTools console and Puppeteer
+- Complete API reference with input/output schemas
+
+**Read this when**:
+- Integrating Webscribe with AI agents or automation tools
+- Building MCP servers or ABP clients
+- Need programmatic access to crawling and content extraction
+- Implementing agent workflows with Webscribe
+- Testing ABP capabilities
+
+**Length**: ~250 lines, ~15 minutes
+
+**Who needs this**: AI agent developers, MCP server implementers, automation engineers. Regular users of the Webscribe UI don't need this — it's for programmatic access only.
+
+---
 
 #### [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 
@@ -1445,6 +1495,7 @@ This project is licensed under the BSD 3-Clause License - see the [LICENSE](./LI
 - 🔌 **Future: API Recording**: Capture and analyze HTTP requests/responses (coming soon)
 
 **Quick Links**:
+- 🤖 [ABP Guide](./docs/ABP.md) - **NEW:** Programmatic API for AI agents
 - 📖 [Architecture Overview](./docs/ARCHITECTURE.md) - System design
 - 🗄️ [Storage Guide](./docs/STORAGE.md) - Database schema and API
 - 📥 [Capturer Guide](./docs/CAPTURER.md) - Capture orchestration
