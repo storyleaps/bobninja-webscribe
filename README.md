@@ -7,71 +7,14 @@
 
 A Chrome extension that captures web pages and extracts clean text content as markdown. Designed for AI tools, offline reading, and research workflows.
 
-> **🚀 Early Access:** Webscribe is pending approval on the Chrome Web Store. You can install it now using [Early Access Installation](#early-access-installation) below.
+[![Install from Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install-blue?logo=googlechrome)](https://chromewebstore.google.com/detail/ldephafjgplbfbaimdboekjcoceihkmj)
 
-## Chrome Web Store Publishing Info
-
-| Field | Value |
-|-------|-------|
-| Extension ID | `ldephafjgplbfbaimdboekjcoceihkmj` |
-| Store URL | https://chromewebstore.google.com/detail/ldephafjgplbfbaimdboekjcoceihkmj |
-| Developer Dashboard | https://chrome.google.com/webstore/devconsole |
-| Publishing Account | `nic@neap.co` |
-
-Use the Developer Dashboard to check published or pending approval extensions.
-
----
-
-## Early Access Installation
-
-> **Note:** Webscribe is currently pending approval on the Chrome Web Store. In the meantime, you can install it directly using Chrome's Developer Mode. This is the same extension—just not distributed through the store yet.
-
-### Quick Install (2 minutes)
-
-1. **Download** the latest release:
-   👉 [**Download webscribe-extension.zip**](https://github.com/storyleaps/bobninja-webscribe/releases/latest/download/webscribe-extension.zip)
-
-2. **Extract** the ZIP to a folder you'll keep (e.g., `Documents/webscribe/`)
-   > **Important:** Don't extract to Downloads or a temp folder—Chrome needs this folder to remain in place.
-
-3. **Open Chrome** and go to `chrome://extensions/`
-
-4. **Enable Developer Mode** (toggle in top-right corner)
-
-5. **Click "Load unpacked"** and select the extracted folder
-
-6. **Done!** The Webscribe icon appears in your toolbar. Click the puzzle piece icon and pin it for easy access.
-
-### About the Browser Warning
-
-Chrome will show a "Disable developer mode extensions" dialog each time you open the browser. This is normal for any extension installed outside the Web Store—just click **"Cancel"** to dismiss it.
-
-Once Webscribe is approved on the Chrome Web Store, you can switch to the store version for automatic updates and no more warnings.
-
-### Updating the Extension
-
-Updates are not automatic with Developer Mode. To update:
-
-1. Download the new release from [GitHub Releases](https://github.com/storyleaps/bobninja-webscribe/releases)
-2. Extract and replace your existing folder
-3. Go to `chrome://extensions/` and click **"Reload"** on the Webscribe card
-
-### Why Trust This Extension?
-
-| Reason | Details |
-|--------|---------|
-| **Open source** | [View all the code](https://github.com/storyleaps/bobninja-webscribe)—nothing hidden |
-| **No data collection** | Everything stays in your browser's local storage |
-| **No external servers** | The extension has no backend—your data never leaves your device |
-| **Same extension** | Identical to what's submitted to Chrome Web Store |
-
----
+> **Agentic Browser Protocol ready** — Webscribe implements the [Agentic Browser Protocol (ABP)](https://agenticbrowserprotocol.io), an open standard that lets AI agents programmatically control browser extensions. Instead of fragile UI automation, AI agents call structured capabilities like `crawl.start()`, `export.asArchive()`, and `scrape.pickContent()` to crawl websites, extract content, and export data — all without a human in the loop. [Learn more about ABP](https://agenticbrowserprotocol.io) | [See Webscribe's ABP implementation](./docs/ABP.md)
 
 ## Table of Contents
 
 - [Webscribe - Chrome Extension](#webscribe---chrome-extension)
   - [Table of Contents](#table-of-contents)
-  - [Early Access Installation](#early-access-installation)
   - [What is Webscribe?](#what-is-webscribe)
     - [The Problem](#the-problem)
     - [The Solution](#the-solution)
