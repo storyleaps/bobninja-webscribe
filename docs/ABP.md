@@ -24,7 +24,9 @@ Webscribe implements the **Agentic Browser Protocol (ABP)**, enabling AI agents 
 
 ## What is ABP?
 
-**ABP (Agentic Browser Protocol)** is a protocol that lets AI agents programmatically interact with web apps and Chrome extensions through structured capabilities. Instead of UI automation (clicking buttons, filling forms), agents call methods like `crawl.start()`, `export.asArchive()`, or `scrape.pickContent()` to access functionality directly.
+**ABP (Agentic Browser Protocol)** is an open standard that lets AI agents programmatically interact with web apps and Chrome extensions through structured capabilities. Instead of UI automation (clicking buttons, filling forms), agents call methods like `crawl.start()`, `export.asArchive()`, or `scrape.pickContent()` to access functionality directly.
+
+For the full protocol specification, see the [official ABP website](https://agenticbrowserprotocol.io).
 
 **Key Principles:**
 - **Headless-compatible** — Every capability works with no human present
@@ -741,8 +743,7 @@ For complete implementation details:
 - **`specs/260212-01-abp/reviews/FINAL-REPORT.md`** — Comprehensive review from 4 independent auditors
 
 For ABP protocol specifications:
-- [ABP Implementation Guide](https://github.com/cloudless/agenticbrowserprotocol/docs/abp-implementation-guide.md)
-- [Chrome Extension Guide](https://github.com/cloudless/agenticbrowserprotocol/docs/chrome-extension-guide.md)
+- [Official ABP Website](https://agenticbrowserprotocol.io) — Full protocol documentation, guides, and specifications
 
 ---
 

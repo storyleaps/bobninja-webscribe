@@ -164,7 +164,7 @@ Webscribe is a powerful browser extension that:
 
 ### Key Features
 
-✅ **ABP Support for AI Agents** - Programmatic API exposing 17 capabilities for AI agent integration (v4.2+)
+✅ **[ABP](https://agenticbrowserprotocol.io) Support for AI Agents** - Programmatic API exposing 17 capabilities for AI agent integration (v4.2+)
 ✅ **Content Picker Mode** - Interactively select and extract content from any web page element (v2.24+)
 ✅ **Multiple URL Support** - Capture multiple base paths in a single job, paste multiple URLs at once (v2.10+)
 ✅ **Strict Path Matching** - Prevent false matches like `/api` matching `/api-docs` (v2.10+)
@@ -464,7 +464,7 @@ extension/
 
 **Programmatic access to Webscribe via ABP**:
 
-Read [ABP.md](./docs/ABP.md) to learn how AI agents can programmatically interact with Webscribe using the Agentic Browser Protocol. ABP exposes 17 capabilities for crawling, content extraction, storage, and export — no UI automation required.
+Read [ABP.md](./docs/ABP.md) to learn how AI agents can programmatically interact with Webscribe using the [Agentic Browser Protocol](https://agenticbrowserprotocol.io). ABP exposes 17 capabilities for crawling, content extraction, storage, and export — no UI automation required.
 
 **Quick start for agents**:
 ```javascript

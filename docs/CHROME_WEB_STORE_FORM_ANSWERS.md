@@ -83,6 +83,13 @@ KEY FEATURES
 • Export as ZIP archives
 • View as raw text, markdown, or HTML
 
+🤖 AI Agent Integration (ABP)
+• Built on the Agentic Browser Protocol (ABP)—an open standard for AI agents to control browser extensions without UI automation. Learn more: https://agenticbrowserprotocol.io
+• Fully automatable from any ABP-compatible AI agent (Claude, ChatGPT, custom agents)
+• 17 capabilities exposed: crawl, extract, export, search, scrape, diagnostics, and more
+• Fire-and-poll pattern for long-running operations
+• MCP Bridge support for seamless AI agent workflows
+
 🔍 Search & Organize
 • Search across all saved content
 • Filter by URL
@@ -124,6 +131,7 @@ Read our full privacy policy: https://bobninja.com/tools/webscribe/privacy/
 PERFECT FOR
 
 • Feeding documentation to AI coding assistants (Claude, ChatGPT, Copilot)
+• AI agents that need programmatic web content extraction
 • Building offline reference libraries
 • Saving tutorials and guides for later
 • Research and note-taking
@@ -190,10 +198,12 @@ Users enter a URL, and Webscribe loads the page, converts the content to formatt
 
 Modern JavaScript-based websites (React, Vue, Angular) require full page rendering to display content correctly. Chrome throttles background tabs, which can interrupt loading. Webscribe ensures pages fully render before extracting content, similar to print-to-PDF tools.
 
+The extension also exposes an Agentic Browser Protocol (ABP) API, enabling AI agents to programmatically crawl, extract, and export content without UI automation.
+
 All data is stored locally using IndexedDB. No data is sent to external servers, and no account is required. Content can be exported as Markdown or copied to the clipboard.
 ```
 
-**Character count:** 764 characters
+**Character count:** 925 characters
 
 ---
 
@@ -523,3 +533,5 @@ The `debugger` permission, while sensitive, is used solely for page rendering—
 - Tab rendering logic: `lib/tab-fetcher.js`
 - Content extraction: `lib/extractor-simple.js`
 - Storage operations: `storage/db.js`
+- ABP runtime (AI agent API): `abp-runtime.js`
+- ABP entry page: `abp-app.html`
